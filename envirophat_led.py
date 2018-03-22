@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 import asyncio
 from mqtt_light import *
 from envirophat import leds
