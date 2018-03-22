@@ -27,7 +27,7 @@ class MQTTLight(object):
         
     @asyncio.coroutine
     def connect(self):
-        C = MQTTClient()
+        C = MQTTClient(config={'auto_reconnect':False})
         self.__client = C
         yield from C.connect("mqtt://" + self.__server + ":" + str(self.__port))
         if self.__state and self.__state_topic:
@@ -46,10 +46,8 @@ class MQTTLight(object):
             yield from C.unsubscribe([self.__ctrl_topic])
             yield from C.disconnect()
         except ClientException as ce:
-            logger.error("Client exception: %s" % ce)    
+            print("Client exception: %s" % ce)    
             
-        asyncio.get_event_loop().run_until_complete(connect())
-    
     @asyncio.coroutine
     def command_topic(self, cmd):
         for c in cmd:
