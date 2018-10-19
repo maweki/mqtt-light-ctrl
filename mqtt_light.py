@@ -64,7 +64,7 @@ class OnOffLight(MQTTLight):
         self.on_func = on_func
         self.off_func = off_func
         self.__state = None
-        super().__init__(server, port, ctrl_topic, state_topic)
+        super().__init__(server, port, ctrl_topic, state_topic, initial_state)
     
     def state(self, arg=None):
         if arg == None:
