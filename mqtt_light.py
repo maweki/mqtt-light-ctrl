@@ -30,8 +30,7 @@ class MQTTLight(object):
         C = MQTTClient(config={'auto_reconnect':False})
         self.__client = C
         yield from C.connect("mqtt://" + self.__server + ":" + str(self.__port))
-        if self.__state and self.__state_topic:
-            _ = yield from self.command_topic({})
+        _ = yield from self.publish_state()
         yield from C.subscribe([
                 (self.__ctrl_topic, QOS_0),
              ])
@@ -42,7 +41,7 @@ class MQTTLight(object):
                     packet = message.publish_packet
                     _ = yield from self.command_topic(json.loads(packet.payload.data.decode("utf-8")))
             except KeyboardInterrupt:
-                pass    
+                pass
             yield from C.unsubscribe([self.__ctrl_topic])
             yield from C.disconnect()
         except ClientException as ce:
@@ -53,6 +52,10 @@ class MQTTLight(object):
         for c in cmd:
             if self.__getattribute__(c)(cmd[c]):
                 self.__state[c] = cmd[c]
+        _ = yield from self.publish_state()
+
+    @asyncio.coroutine
+    def publish_state(self):
         if self.__state_topic:
             _ = yield from self.__client.publish(self.__state_topic, message=json.dumps(self.__state).encode())
 
