@@ -53,7 +53,7 @@ class MQTTLight(object):
         for c in cmd:
             if self.__getattribute__(c)(cmd[c]):
                 self.__state[c] = cmd[c]
-        self.change_cb(self.__state)
+        self.__change_cb(self.__state)
         _ = yield from self.publish_state()
 
     @asyncio.coroutine

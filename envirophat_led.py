@@ -4,7 +4,7 @@ from mqtt_light import *
 from envirophat import leds
 import shelve
 
-STATE_FILENAME = '.envirophat_light_state'
+STATE_FILENAME = '/tmp/.envirophat_light_state'
 
 def get_initial_state():
     with shelve.open(STATE_FILENAME) as s:
