@@ -11,6 +11,7 @@ def get_initial_state():
         state = dict(s)
         if 'state' not in state:
             return {'state': 'OFF'}
+        return state
 
 def change_cb(new_state):
     with shelve.open(STATE_FILENAME) as s:
