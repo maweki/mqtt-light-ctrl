@@ -7,14 +7,15 @@ from functools import wraps
 import json
 
 class MQTTLight(object):
-    def __init__(self, server, port, ctrl_topic, state_topic=None, initial_state=None):
+    def __init__(self, server, port, ctrl_topic, state_topic=None, initial_state=None, change_cb=(lambda x: None)):
         self.__state = dict(initial_state) if initial_state else {}
         self.__ctrl_topic = ctrl_topic
         self.__state_topic = state_topic
         self.__server = server
         self.__port = port
         self.__client = None
-    
+        self.__change_cb = change_cb
+
     @staticmethod
     def parser():
         import argparse
@@ -52,6 +53,7 @@ class MQTTLight(object):
         for c in cmd:
             if self.__getattribute__(c)(cmd[c]):
                 self.__state[c] = cmd[c]
+        self.change_cb(self.__state)
         _ = yield from self.publish_state()
 
     @asyncio.coroutine
@@ -60,12 +62,12 @@ class MQTTLight(object):
             _ = yield from self.__client.publish(self.__state_topic, message=json.dumps(self.__state).encode())
 
 class OnOffLight(MQTTLight):
-    def __init__(self, server, port, ctrl_topic, state_topic=None, on_func=None, off_func=None, initial_state=None):
+    def __init__(self, server, port, ctrl_topic, state_topic=None, on_func=None, off_func=None, initial_state=None, change_cb=(lambda x: None)):
         self.on_func = on_func
         self.off_func = off_func
         self.__state = None
-        super().__init__(server, port, ctrl_topic, state_topic, initial_state)
-    
+        super().__init__(server, port, ctrl_topic, state_topic, initial_state, change_cb)
+
     def state(self, arg=None):
         if arg == None:
             return self.__state
