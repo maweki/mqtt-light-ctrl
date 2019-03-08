@@ -16,6 +16,8 @@ class MQTTLight(object):
         self.__client = None
         self.__change_cb = change_cb
 
+        self.state_update(self.__state)
+
     @staticmethod
     def parser():
         import argparse
@@ -50,11 +52,17 @@ class MQTTLight(object):
 
     @asyncio.coroutine
     def command_topic(self, cmd):
-        for c in cmd:
-            if self.__getattribute__(c)(cmd[c]):
-                self.__state[c] = cmd[c]
-        self.__change_cb(self.__state)
+        self.state_update(cmd)
         _ = yield from self.publish_state()
+
+    def state_update(self, d):
+        for c in d:
+            try:
+                if self.__getattribute__(c)(d[c]):
+                    self.__state[c] = d[c]
+            except AttributeError:
+                print("ignored attribute update:", c)
+        self.__change_cb(self.__state)
 
     @asyncio.coroutine
     def publish_state(self):
