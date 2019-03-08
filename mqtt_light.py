@@ -25,7 +25,7 @@ class MQTTLight(object):
         p.add_argument('ctrl_topic', type=str, help="Control Topic")
         p.add_argument('--state_topic', type=str, help="State Topic", default=None)
         return p
-        
+
     @asyncio.coroutine
     def connect(self):
         C = MQTTClient(config={'auto_reconnect':False})
@@ -46,8 +46,8 @@ class MQTTLight(object):
             yield from C.unsubscribe([self.__ctrl_topic])
             yield from C.disconnect()
         except ClientException as ce:
-            print("Client exception: %s" % ce)    
-            
+            print("Client exception: %s" % ce)
+
     @asyncio.coroutine
     def command_topic(self, cmd):
         for c in cmd:
@@ -71,7 +71,7 @@ class OnOffLight(MQTTLight):
     def state(self, arg=None):
         if arg == None:
             return self.__state
-        
+
         d = {'ON': self.on_func,
              'OFF':self.off_func}
         if arg in d:
@@ -80,5 +80,3 @@ class OnOffLight(MQTTLight):
                 return (d[arg]() or True)
             return None
         raise ValueError()
-    
-    
